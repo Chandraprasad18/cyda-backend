@@ -3,7 +3,7 @@ import GetInvolved from '../models/getInvolvedModel.js';
 // 1. GET: Fetch GetInvolved Data
 export const getInvolvedData = async (req, res) => {
   try {
-    let data = await GetInvolved.findOne().sort({ createdAt: -1 }); // ସବୁଠାରୁ ଶେଷରେ ତିଆରି ହୋଇଥିବା ଡାଟା ଆଣିବ
+    let data = await GetInvolved.findOne().sort({ createdAt: -1 });
     if (!data) {
       return res.status(200).json({ success: true, data: null });
     }
@@ -23,6 +23,11 @@ export const updateInvolvedData = async (req, res) => {
     let handshakeIconPath = existingData?.images?.handshakeIcon || '';
     let footerImagePath = existingData?.images?.footerImage || '';
     let unstoppableImagePath = existingData?.images?.unstoppableImage || '';
+
+    // Check if user clicked remove for specific images
+    if (req.body.remove_handshakeIcon === 'true') handshakeIconPath = '';
+    if (req.body.remove_footerImage === 'true') footerImagePath = '';
+    if (req.body.remove_unstoppableImage === 'true') unstoppableImagePath = '';
 
     if (req.files) {
       if (req.files.handshakeIcon && req.files.handshakeIcon[0]) {
@@ -49,8 +54,6 @@ export const updateInvolvedData = async (req, res) => {
     };
 
     let updatedRecord;
-    // ଯଦି ଆପଣ ନୂଆ "Create New" କରିବାକୁ ଚାହୁଁଛନ୍ତି କିମ୍ବା ଏକାଧିକ ରଖିବାକୁ ଚାହୁଁଛନ୍ତି, ତେବେ ତଳର ଲଜିକ୍ କାମ କରିବ:
-    // ଯଦି କେବଳ ଗୋଟିଏ ରେକର୍ଡ ଅପଡେଟ୍ ହେବ, ତେବେ findOneAndUpdate ବ୍ୟବହାର ହେବ।
     if (existingData) {
       updatedRecord = await GetInvolved.findByIdAndUpdate(
         existingData._id, 

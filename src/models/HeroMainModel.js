@@ -1,11 +1,5 @@
 import mongoose from "mongoose";
 
-const cardSchema = new mongoose.Schema({
-    title: { type: String, required: false },
-    image: { type: String, required: false },
-    categoryWiseData: { type: mongoose.Schema.Types.Mixed, default: {} }
-});
-
 const heroMainSchema = new mongoose.Schema({
     sectionKey: { 
         type: String, 
@@ -14,9 +8,7 @@ const heroMainSchema = new mongoose.Schema({
         lowercase: true,
         trim: true
     },
-    coverImage: { type: String, required: false }, 
-    youthHeading: { type: String, required: false }, 
-    imageContentArray: [cardSchema]
+    coverImage: { type: String, required: false } // Only hero banner image is kept here
 }, { timestamps: true });
 
 const HeroMain = mongoose.model("HeroMain", heroMainSchema);

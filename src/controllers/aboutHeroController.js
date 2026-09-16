@@ -19,7 +19,7 @@ export const getAboutHeroData = async (req, res) => {
 // Create About Hero Data
 export const createAboutHeroData = async (req, res) => {
     try {
-        const { headingLine1, headingLine2, description } = req.body;
+        const { headingLine1, headingLine2, boldText, description } = req.body;
         
         // Check if image file is provided
         if (!req.file) {
@@ -31,6 +31,7 @@ export const createAboutHeroData = async (req, res) => {
         const newData = new AboutHero({
             headingLine1,
             headingLine2,
+            boldText,
             description,
             imageUrl
         });
@@ -38,7 +39,6 @@ export const createAboutHeroData = async (req, res) => {
         await newData.save();
         res.status(201).json({ success: true, message: "Created successfully", data: newData });
     } catch (error) {
-        // If an image was uploaded but saving failed, delete the uploaded file to avoid orphaned files
         if (req.file) {
             const filePath = path.join(__dirname, "..", "..", "uploads", req.file.filename);
             if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
@@ -51,7 +51,7 @@ export const createAboutHeroData = async (req, res) => {
 export const updateAboutHeroData = async (req, res) => {
     try {
         const { id } = req.params;
-        const { headingLine1, headingLine2, description } = req.body;
+        const { headingLine1, headingLine2, boldText, description } = req.body;
 
         const existingData = await AboutHero.findById(id);
         if (!existingData) {
@@ -64,7 +64,6 @@ export const updateAboutHeroData = async (req, res) => {
 
         let imageUrl = existingData.imageUrl;
         if (req.file) {
-            // Delete old image if it exists
             if (existingData.imageUrl) {
                 const oldPath = path.join(__dirname, "..", "..", existingData.imageUrl);
                 if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
@@ -74,7 +73,7 @@ export const updateAboutHeroData = async (req, res) => {
 
         const updatedData = await AboutHero.findByIdAndUpdate(
             id,
-            { headingLine1, headingLine2, description, imageUrl },
+            { headingLine1, headingLine2, boldText, description, imageUrl },
             { new: true, runValidators: true }
         );
 
@@ -97,7 +96,6 @@ export const deleteAboutHeroData = async (req, res) => {
             return res.status(404).json({ success: false, message: "Data not found" });
         }
 
-        // Delete associated image file from storage
         if (existingData.imageUrl) {
             const imagePath = path.join(__dirname, "..", "..", existingData.imageUrl);
             if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);

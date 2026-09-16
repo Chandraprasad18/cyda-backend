@@ -11,10 +11,8 @@ import {
 } from "../controllers/aboutHeroController.js";
 
 const router = express.Router();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 const UPLOADS_PATH = path.join(__dirname, "..", "..", "uploads");
 
 if (!fs.existsSync(UPLOADS_PATH)) {
