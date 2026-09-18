@@ -1,10 +1,4 @@
 import HeroMain from "../models/HeroMainModel.js";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Get Hero Image By Section
 export const getHeroBySection = async (req, res) => {
@@ -25,7 +19,7 @@ export const getHeroBySection = async (req, res) => {
     }
 };
 
-// Upsert Hero Image (Create / Update) - FIXED
+// Upsert Hero Image (Create / Update) - Cloudinary Ready
 export const upsertHeroData = async (req, res) => {
     try {
         const { section } = req.params;
@@ -36,15 +30,9 @@ export const upsertHeroData = async (req, res) => {
 
         let coverImage = existingData ? existingData.coverImage : "";
 
+        // ଯଦି ନୂଆ ଫାଇଲ୍ ଅପଲୋଡ୍ ହୋଇଥାଏ, ତେବେ ତାହାର Cloudinary URL (req.file.path) ନେବ
         if (req.file) {
-            // Remove old physical file if exists
-            if (existingData && existingData.coverImage) {
-                const oldPath = path.join(__dirname, "..", "..", existingData.coverImage);
-                if (fs.existsSync(oldPath)) {
-                    try { fs.unlinkSync(oldPath); } catch (err) { console.error(err); }
-                }
-            }
-            coverImage = `/uploads/${req.file.filename}`;
+            coverImage = req.file.path || req.file.secure_url;
         }
 
         const updated = await HeroMain.findOneAndUpdate(
@@ -55,12 +43,6 @@ export const upsertHeroData = async (req, res) => {
 
         res.status(200).json({ success: true, message: "Hero image saved successfully!", data: updated });
     } catch (error) {
-        if (req.file) {
-            const newFilePath = path.join(__dirname, "..", "..", "uploads", req.file.filename);
-            if (fs.existsSync(newFilePath)) {
-                try { fs.unlinkSync(newFilePath); } catch (err) { console.error(err); }
-            }
-        }
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -74,13 +56,6 @@ export const deleteHeroBySection = async (req, res) => {
         const existingData = await HeroMain.findOne({ sectionKey: targetSection });
         if (!existingData) {
             return res.status(200).json({ success: false, name: "Section data not found to delete" });
-        }
-
-        if (existingData.coverImage) {
-            const imagePath = path.join(__dirname, "..", "..", existingData.coverImage);
-            if (fs.existsSync(imagePath)) {
-                try { fs.unlinkSync(imagePath); } catch (err) { console.error(err); }
-            }
         }
 
         await HeroMain.findOneAndDelete({ sectionKey: targetSection });

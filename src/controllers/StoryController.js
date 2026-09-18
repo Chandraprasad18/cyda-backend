@@ -4,7 +4,6 @@ export const getStoriesBySection = async (req, res, next) => {
     try {
         const { sectionName } = req.params;
         
-        // Regex use karigala jemti capital ba small letter (e.g. landingPage) re kichi error nahuaye
         const stories = await Story.find({ 
             section: { $regex: new RegExp(`^${sectionName}$`, "i") } 
         }).sort({ createdAt: -1 });
@@ -35,7 +34,7 @@ export const addStory = async (req, res, next) => {
         }
 
         const newStory = new Story({
-            section: section || 'youth',
+            section: section || 'landingPage',
             storyContent,
             link: link || "https://cydaindia.org",
             thumbnail

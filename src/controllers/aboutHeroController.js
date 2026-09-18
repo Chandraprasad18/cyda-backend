@@ -62,12 +62,21 @@ export const updateAboutHeroData = async (req, res) => {
         }
 
         let imageUrl = existingData.imageUrl;
+        
+        // Only update and delete old image if a brand new file was actually uploaded
         if (req.file) {
-            if (existingData.imageUrl) {
-                const oldPath = path.join(__dirname, "..", "..", existingData.imageUrl);
-                if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-            }
             imageUrl = `uploads/${req.file.filename}`;
+            
+            if (existingData.imageUrl && !existingData.imageUrl.startsWith('http')) {
+                const oldPath = path.join(__dirname, "..", "..", existingData.imageUrl);
+                if (fs.existsSync(oldPath)) {
+                    try {
+                        fs.unlinkSync(oldPath);
+                    } catch (err) {
+                        console.error("Error removing old image file:", err);
+                    }
+                }
+            }
         }
 
         const updatedData = await AboutHero.findByIdAndUpdate(
@@ -95,9 +104,15 @@ export const deleteAboutHeroData = async (req, res) => {
             return res.status(404).json({ success: false, message: "Data not found" });
         }
 
-        if (existingData.imageUrl) {
+        if (existingData.imageUrl && !existingData.imageUrl.startsWith('http')) {
             const imagePath = path.join(__dirname, "..", "..", existingData.imageUrl);
-            if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
+            if (fs.existsSync(imagePath)) {
+                try {
+                    fs.unlinkSync(imagePath);
+                } catch (err) {
+                    console.error("Error removing image file on delete:", err);
+                }
+            }
         }
 
         await AboutHero.findByIdAndDelete(id);
