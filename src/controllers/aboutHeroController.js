@@ -46,7 +46,7 @@ export const createAboutHeroData = async (req, res) => {
     }
 };
 
-// Update About Hero Data (Fixed to retain old image if no new file is uploaded)
+// Update About Hero Data
 export const updateAboutHeroData = async (req, res) => {
     try {
         const { id } = req.params;
