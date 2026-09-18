@@ -31,13 +31,13 @@ export const updateInvolvedData = async (req, res) => {
 
     if (req.files) {
       if (req.files.handshakeIcon && req.files.handshakeIcon[0]) {
-        handshakeIconPath = `/uploads/${req.files.handshakeIcon[0].filename}`;
+        handshakeIconPath = `uploads/${req.files.handshakeIcon[0].filename}`;
       }
       if (req.files.footerImage && req.files.footerImage[0]) {
-        footerImagePath = `/uploads/${req.files.footerImage[0].filename}`;
+        footerImagePath = `uploads/${req.files.footerImage[0].filename}`;
       }
       if (req.files.unstoppableImage && req.files.unstoppableImage[0]) {
-        unstoppableImagePath = `/uploads/${req.files.unstoppableImage[0].filename}`;
+        unstoppableImagePath = `uploads/${req.files.unstoppableImage[0].filename}`;
       }
     }
 

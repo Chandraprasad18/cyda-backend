@@ -4,7 +4,6 @@ import { getPolicies, createPolicy } from '../controllers/policyItemsController.
 
 const router = express.Router();
 
-// Multer storage setup for policy PDF files
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'uploads/'),
     filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)

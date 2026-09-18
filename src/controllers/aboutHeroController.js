@@ -21,7 +21,6 @@ export const createAboutHeroData = async (req, res) => {
     try {
         const { headingLine1, headingLine2, boldText, description } = req.body;
         
-        // Check if image file is provided
         if (!req.file) {
             return res.status(400).json({ success: false, message: "Image is required" });
         }
@@ -47,7 +46,7 @@ export const createAboutHeroData = async (req, res) => {
     }
 };
 
-// Update About Hero Data
+// Update About Hero Data (Fixed to retain old image if no new file is uploaded)
 export const updateAboutHeroData = async (req, res) => {
     try {
         const { id } = req.params;

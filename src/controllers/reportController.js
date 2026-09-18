@@ -32,12 +32,9 @@ export const updateOrCreateReportCategory = async (req, res) => {
         const { category } = req.params;
         let items = [];
 
-        // 1. Check yadi 'items' JSON string format ba array re asuchhi
         if (req.body.items) {
             items = typeof req.body.items === 'string' ? JSON.parse(req.body.items) : req.body.items;
-        } 
-        // 2. Yadi Postman form-data re individual fields (title, etc.) asuchhi (Screenshot anuchari)
-        else if (req.body.title) {
+        } else if (req.body.title) {
             const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
             items = titles.map((title) => ({
                 title: title,
@@ -45,23 +42,32 @@ export const updateOrCreateReportCategory = async (req, res) => {
             }));
         }
 
-        // Yadi new file upload heichi, tar path items re map karidaba
+        // Handle file uploads cleanly
         if (req.files && req.files.length > 0) {
             req.files.forEach((file, fileIndex) => {
-                const filePath = `/uploads/${file.filename}`;
+                // Keep only the filename or clean relative path to avoid double uploads/
+                const cleanFileName = file.filename; 
                 
-                // Check if fileIndex is explicitly provided in body
                 const targetIndex = req.body[`fileIndex_${file.fieldname}`] !== undefined 
                     ? Number(req.body[`fileIndex_${file.fieldname}`]) 
                     : fileIndex;
 
                 if (items[targetIndex]) {
-                    items[targetIndex].reportLink = filePath;
+                    items[targetIndex].reportLink = cleanFileName;
                 }
             });
         }
 
-        // Validate category
+        // Clean existing items reportLinks if they accidentally contain full paths
+        items = items.map(item => {
+            if (item.reportLink) {
+                // Remove any leading uploads/ or full urls if present
+                const fileName = item.reportLink.replace(/^.*[\\\/]/, '');
+                return { ...item, reportLink: fileName };
+            }
+            return item;
+        });
+
         const allowedCategories = ['annualReports', 'auditReports', 'strategicPlan', 'policies'];
         if (!allowedCategories.includes(category)) {
             return res.status(400).json({ success: false, message: "Invalid category name" });

@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const aboutHeroSchema = new mongoose.Schema({
     headingLine1: { type: String, required: true },
     headingLine2: { type: String, required: true },
-    boldText: { type: String, default: "" },       // Added boldText field
+    boldText: { type: String, default: "" },      
     description: { type: String, required: true },
     imageUrl: { type: String, required: true }
 }, { timestamps: true });

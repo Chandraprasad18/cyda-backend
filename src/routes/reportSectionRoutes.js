@@ -7,7 +7,9 @@ import {
     getReportSections, 
     createReportSection, 
     updateReportSection, 
-    deleteReportSection 
+    deleteReportSection,
+    getReportsByCategory,
+    updateReportsByCategory
 } from "../controllers/reportSectionController.js";
 
 const router = express.Router();
@@ -34,8 +36,13 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+// Multer array storage configuration for bulk updates
+const uploadMultiple = upload.array("reports");
+
 router.get("/", getReportSections);
+router.get("/:category", getReportsByCategory);
 router.post("/", upload.single("reportFile"), createReportSection);
+router.put("/:category", uploadMultiple, updateReportsByCategory);
 router.put("/:id", upload.single("reportFile"), updateReportSection);
 router.delete("/:id", deleteReportSection);
 

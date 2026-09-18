@@ -19,19 +19,27 @@ export const getHeroBySection = async (req, res) => {
     }
 };
 
-// Upsert Hero Image (Create / Update) - Title removed, only image
+// Upsert Hero Image (Create / Update) - FIXED
 export const upsertHeroData = async (req, res) => {
     try {
         const { section } = req.params;
         const { sectionKey } = req.body;
-        const coverImage = req.file ? `/uploads/${req.file.filename}` : undefined;
-
         const targetSectionKey = (sectionKey || section).toLowerCase().trim();
+
+        // ପୂର୍ବରୁ ଏହି sectionKey ପାଇଁ ଡାଟା ଅଛି କି ନାହିଁ ଯାଞ୍ଚ କରନ୍ତୁ
+        const existingData = await HeroMain.findOne({ sectionKey: targetSectionKey });
 
         const updateData = { 
             sectionKey: targetSectionKey 
         };
-        if (coverImage) updateData.coverImage = coverImage;
+
+        // ଯଦି ନୂଆ ଫାଇଲ୍ ଅପଲୋଡ୍ ହୋଇଛି, ତେବେ ନୂଆ ପାଥ୍ ଦିଅନ୍ତୁ
+        if (req.file) {
+            updateData.coverImage = `/uploads/${req.file.filename}`;
+        } else if (existingData && existingData.coverImage) {
+            // ଯଦି ନୂଆ ଫାଇଲ୍ ନାହିଁ, କିନ୍ତୁ ପୁରୁଣା ଇମେଜ୍ ଅଛି, ତେବେ ପୁରୁଣାଟିକୁ ବଜାୟ ରଖନ୍ତୁ (Removal ରୋକିବ ପାଇଁ)
+            updateData.coverImage = existingData.coverImage;
+        }
 
         const updated = await HeroMain.findOneAndUpdate(
             { sectionKey: targetSectionKey },

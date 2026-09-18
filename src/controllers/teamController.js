@@ -10,7 +10,7 @@ export const getTeamMembers = async (req, res) => {
     }
 };
 
-// ନୂଆ ମେମ୍ବର ଆଡ୍ କରିବା ପାଇଁ (POST)
+// ନୂଆ ମେମ୍ବର ଆଡ୍ କରିବା ପାଇଁ (POST) - Added Duplicate Check
 export const addTeamMember = async (req, res) => {
     try {
         const { name, title, category, order } = req.body || {};
@@ -22,8 +22,20 @@ export const addTeamMember = async (req, res) => {
             });
         }
 
+        // 1. ସମାନ ନାମ ଏବଂ କାଟେଗୋରିର ମେମ୍ବର ପୂର୍ବରୁ ଅଛନ୍ତି କି ନାହିଁ ଯାଞ୍ଚ କରିବା
+        const existingMember = await Team.findOne({ 
+            name: { $regex: new RegExp(`^${name.trim()}$`, 'i') }, 
+            category 
+        });
+
+        if (existingMember) {
+            return res.status(400).json({
+                success: false,
+                message: 'A team member with this name and category already exists!'
+            });
+        }
+
         let profileImage = '';
-        // upload.any() ପାଇଁ req.files ବ୍ୟବହାର କରାଗଲା
         if (req.files && req.files.length > 0) {
             profileImage = `/uploads/${req.files[0].filename}`;
         } else if (req.file) {
@@ -31,7 +43,7 @@ export const addTeamMember = async (req, res) => {
         }
 
         const newMember = await Team.create({
-            name,
+            name: name.trim(),
             title,
             category,
             profileImage,
@@ -59,13 +71,12 @@ export const updateTeamMember = async (req, res) => {
         }
 
         let updateData = {
-            name: name || member.name,
+            name: name ? name.trim() : member.name,
             title: title || member.title,
             category: category || member.category,
             order: order !== undefined ? Number(order) : member.order
         };
 
-        // ଯଦି ଏଡିଟ୍ କରିବା ସମୟରେ ନୂଆ ଫଟୋ ଅପ୍ଲୋଡ୍ କରାଯାଇଥାଏ
         if (req.files && req.files.length > 0) {
             updateData.profileImage = `/uploads/${req.files[0].filename}`;
         } else if (req.file) {
