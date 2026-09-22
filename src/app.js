@@ -38,6 +38,8 @@ import heroMainRoutes from './routes/heroMainRoutes.js'; // Ensure this matches 
 import NewProgramRoutes from "./routes/NewProgramRoutes.js";
 import categoryRoutes from "./routes/Newroutes.js";
 
+import heroRoutes from "./routes/heroroutes.js";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -101,6 +103,7 @@ app.use(
 // =====================================================
 // ROUTES MOUNTING
 // =====================================================
+app.use("/api/contact-categories", heroRoutes);
 app.use('/api/stories', storyRoutes);
 app.use("/api/pages/approach", approachRoutes);
 app.use("/api/admin", authRoutes);
@@ -132,6 +135,7 @@ app.use('/api/team', teamRoutes);
 app.use("/api/heromain", heroMainRoutes); // Ensuring correct prefix mapping
 app.use("/api/newprograms", NewProgramRoutes);
 app.use("/api/content", categoryRoutes);
+
 
 app.get("/", (req, res) => {
   res.status(200).json({
